@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>エアコンクリーニング見積もり・予約</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro W3', Meiryo, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .step {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.1);
+        }
+
+        .step-title {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .step-number {
+            background: #4CAF50;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .ac-unit {
+            background: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .ac-unit:hover {
+            border-color: #4CAF50;
+            background: #f0f8f0;
+        }
+
+        .ac-unit h3 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .photo-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .upload-area {
+            width: 100%;
+            height: 200px;
+            border: 3px dashed #ccc;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .upload-area:hover {
+            border-color: #4CAF50;
+            background: #f8fff8;
+        }
+
+        .upload-area.has-image {
+            height: auto;
+            padding: 10px;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: #666;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .add-unit-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .add-unit-btn:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .estimate-btn {
+            background: #FF9800;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .estimate-btn:hover {
+            background: #F57C00;
+            transform: translateY(-2px);
+        }
+
+        .estimate-result {
+            background: linear-gradient(135deg, #FFE0B2, #FFCC80);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+
+        .estimate-result h3 {
+            color: #E65100;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #D84315;
+            margin: 10px 0;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            color: #555;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: white;
+            border: 2px solid #e0e0e0;
+            position: relative;
+            min-height: 60px;
+            font-size: 0.9rem;
+        }
+
+        .calendar-day.clickable {
+            cursor: pointer;
+        }
+
+        .calendar-day.clickable:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .calendar-day.busy {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .calendar-day.busy:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .calendar-day.available {
+            background: #E8F5E8;
+            border-color: #4CAF50;
+        }
+
+        .calendar-day.busy {
+            background: #FFEBEE;
+            border-color: #F44336;
+        }
+
+        .calendar-day.limited {
+            background: #FFF3E0;
+            border-color: #FF9800;
+        }
+
+        .calendar-day.selected {
+            background: #4CAF50;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .day-number {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .availability-icon {
+            font-size: 1.1rem;
+        }
+
+        .booking-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .submit-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-icon {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .calendar {
+                gap: 3px;
+            }
+
+            .calendar-day {
+                min-height: 45px;
+                font-size: 0.8rem;
+                border-radius: 6px;
+            }
+
+            .day-number {
+                font-size: 0.8rem;
+                margin-bottom: 2px;
+            }
+
+            .availability-icon {
+                font-size: 0.9rem;
+            }
+
+            .legend {
+                gap: 15px;
+            }
+
+            .legend-item {
+                font-size: 0.8rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding: 15px;
+            }
+
+            .calendar {
+                gap: 2px;
+            }
+
+            .calendar-day {
+                min-height: 40px;
+                font-size: 0.7rem;
+            }
+
+            .day-number {
+                font-size: 0.7rem;
+                margin-bottom: 1px;
+            }
+
+            .availability-icon {
+                font-size: 0.8rem;
+            }
+
+            .calendar-header {
+                padding: 8px 4px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌿 エアコンクリーニング</h1>
+            <p>写真で簡単見積もり・予約システム</p>
+        </div>
+
+        <div class="content">
+            <!-- Step 1: Photo Upload -->
+            <div class="step">
+                <div class="step-title">
+                    <div class="step-number">1</div>
+                    エアコンの写真をアップロード
+                </div>
+
+                <div id="ac-units">
+                    <div class="ac-unit">
+                        <h3>📱 エアコン 1台目</h3>
+                        <div class="photo-upload">
+                            <div class="upload-area" onclick="document.getElementById('photo1').click()">
+                                <div class="upload-icon">📷</div>
+                                <div class="upload-text">
+                                    <strong>写真をアップロード</strong><br>
+                                    エアコンの全体が見える写真をお選びください
+                                </div>
+                            </div>
+                            <input type="file" id="photo1" class="file-input" accept="image/*" onchange="handleFileUpload(this, 0)">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="add-unit-btn" onclick="addAcUnit()">
+                    ➕ エアコンを追加
+                </button>
+
+                <button class="estimate-btn" onclick="calculateEstimate()">
+                    💰 見積もりを計算
+                </button>
+
+                <div class="estimate-result" id="estimate-result">
+                    <h3>🎯 見積もり金額</h3>
+                    <div class="price" id="total-price">¥0</div>
+                    <p id="estimate-details">エアコン台数に基づいた見積もりです</p>
+                </div>
+            </div>
+
+            <!-- Step 2: Calendar Booking -->
+            <div class="step">
+                <div class="step-title">
+                    <div class="step-number">2</div>
+                    希望日を選択
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-icon">⭕</span>
+                        <span>予約可能</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon">🔺</span>
+                        <span>空き僅か</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon">❌</span>
+                        <span>予約不可</span>
+                    </div>
+                </div>
+
+                <div class="calendar" id="calendar">
+                    <!-- Calendar will be generated by JavaScript -->
+                </div>
+
+                <div class="booking-form" id="booking-form">
+                    <h3>📝 予約情報入力</h3>
+                    
+                    <div class="form-group">
+                        <label for="customer-name">お名前 *</label>
+                        <input type="text" id="customer-name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customer-phone">電話番号 *</label>
+                        <input type="tel" id="customer-phone" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customer-email">メールアドレス</label>
+                        <input type="email" id="customer-email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="time-slot">希望時間</label>
+                        <select id="time-slot">
+                            <option value="09:00">9:00 〜 12:00</option>
+                            <option value="13:00">13:00 〜 16:00</option>
+                            <option value="16:00">16:00 〜 19:00</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">備考・ご要望</label>
+                        <textarea id="notes" rows="3" placeholder="駐車場の有無、アクセス方法など"></textarea>
+                    </div>
+
+                    <button class="submit-btn" onclick="submitBooking()">
+                        🎉 予約を確定する
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let acUnits = [];
+        let selectedDate = null;
+        let unitCount = 1;
+
+        // Initialize calendar
+        function generateCalendar() {
+            const calendar = document.getElementById('calendar');
+            const today = new Date();
+            const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
+            
+            // Add headers
+            daysOfWeek.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-header';
+                header.textContent = day;
+                calendar.appendChild(header);
+            });
+
+            // Add days for next 3 weeks
+            for (let i = 1; i <= 21; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                // Random availability for demo
+                const availability = Math.random();
+                if (availability > 0.7) {
+                    dayElement.classList.add('available', 'clickable');
+                    dayElement.innerHTML = `
+                        <div class="day-number">${date.getDate()}</div>
+                        <div class="availability-icon">⭕</div>
+                    `;
+                    dayElement.addEventListener('click', () => selectDate(dayElement, date));
+                } else if (availability > 0.4) {
+                    dayElement.classList.add('limited', 'clickable');
+                    dayElement.innerHTML = `
+                        <div class="day-number">${date.getDate()}</div>
+                        <div class="availability-icon">🔺</div>
+                    `;
+                    dayElement.addEventListener('click', () => selectDate(dayElement, date));
+                } else {
+                    dayElement.classList.add('busy');
+                    dayElement.innerHTML = `
+                        <div class="day-number">${date.getDate()}</div>
+                        <div class="availability-icon">❌</div>
+                    `;
+                    // 予約不可の日にはクリックイベントを追加しない
+                }
+
+                calendar.appendChild(dayElement);
+            }
+        }
+
+        function selectDate(element, date) {
+            // Remove previous selection
+            document.querySelectorAll('.calendar-day.selected').forEach(day => {
+                day.classList.remove('selected');
+            });
+
+            // Select new date
+            element.classList.add('selected');
+            selectedDate = date;
+
+            // Show booking form
+            document.getElementById('booking-form').style.display = 'block';
+        }
+
+        function handleFileUpload(input, unitIndex) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const uploadArea = input.parentElement.querySelector('.upload-area');
+                    uploadArea.classList.add('has-image');
+                    uploadArea.innerHTML = `<img src="${e.target.result}" class="preview-image" alt="エアコン写真">`;
+                    
+                    // Store image data
+                    acUnits[unitIndex] = {
+                        image: e.target.result,
+                        uploaded: true
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addAcUnit() {
+            const acUnitsContainer = document.getElementById('ac-units');
+            const newUnit = document.createElement('div');
+            newUnit.className = 'ac-unit';
+            newUnit.innerHTML = `
+                <h3>📱 エアコン ${unitCount + 1}台目</h3>
+                <div class="photo-upload">
+                    <div class="upload-area" onclick="document.getElementById('photo${unitCount + 1}').click()">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">
+                            <strong>写真をアップロード</strong><br>
+                            エアコンの全体が見える写真をお選びください
+                        </div>
+                    </div>
+                    <input type="file" id="photo${unitCount + 1}" class="file-input" accept="image/*" onchange="handleFileUpload(this, ${unitCount})">
+                </div>
+            `;
+            
+            acUnitsContainer.appendChild(newUnit);
+            unitCount++;
+            acUnits.push({uploaded: false});
+        }
+
+        function calculateEstimate() {
+            const uploadedUnits = acUnits.filter(unit => unit && unit.uploaded).length;
+            const basePrice = 8000; // Base price per AC unit
+            const discountRate = uploadedUnits > 1 ? 0.1 : 0; // 10% discount for multiple units
+            
+            const totalBeforeDiscount = uploadedUnits * basePrice;
+            const discount = totalBeforeDiscount * discountRate;
+            const totalPrice = totalBeforeDiscount - discount;
+
+            document.getElementById('total-price').textContent = `¥${totalPrice.toLocaleString()}`;
+            document.getElementById('estimate-details').innerHTML = `
+                エアコン ${uploadedUnits}台 × ¥${basePrice.toLocaleString()} = ¥${totalBeforeDiscount.toLocaleString()}<br>
+                ${uploadedUnits > 1 ? `複数台割引(-10%): -¥${discount.toLocaleString()}<br>` : ''}
+                <strong>合計: ¥${totalPrice.toLocaleString()}</strong>
+            `;
+            
+            document.getElementById('estimate-result').style.display = 'block';
+        }
+
+        function submitBooking() {
+            const name = document.getElementById('customer-name').value;
+            const phone = document.getElementById('customer-phone').value;
+            
+            if (!name || !phone) {
+                alert('お名前と電話番号は必須項目です。');
+                return;
+            }
+
+            if (!selectedDate) {
+                alert('希望日を選択してください。');
+                return;
+            }
+
+            // Simulate booking submission
+            alert(`
+予約が完了いたしました！
+
+📅 予約日: ${selectedDate.getMonth() + 1}月${selectedDate.getDate()}日
+👤 お名前: ${name}
+📞 電話番号: ${phone}
+🏠 エアコン台数: ${acUnits.filter(unit => unit && unit.uploaded).length}台
+
+担当者より確認のお電話をさせていただきます。
+ありがとうございました！
+            `);
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            generateCalendar();
+            acUnits.push({uploaded: false}); // Initialize first AC unit
+        });
+    </script>
+</body>
+</html>
